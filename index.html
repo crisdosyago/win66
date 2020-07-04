@@ -4,7 +4,7 @@
   <title>Win66</title>
   <style>
     :root {
-
+      font: 16px/135% Arial, Helvetica Neue, system, sans-serif;
     }
 
     :root, body {
@@ -22,13 +22,27 @@
       grid-template-rows: 1fr auto;
     }
 
+    button, input {
+      font-size: inherit;
+    }
     main.desktop {
       grid-area: "main-desktop";
       margin: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      flex-flow: column wrap;
     }
 
     main.desktop > article.file {
-
+      height: 111px;
+      width: 85px;
+      border: thin dotted grey;
+      margin: 0.5rem 0.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      font-size: smaller;
     }
 
     nav.footer {
@@ -78,10 +92,10 @@
   </style>
   <body>
     <main class=desktop>
-      <article class="file folder">
+      <article class="file folder" tabindex=0>
         Trash
       </article>
-      <article class=file>
+      <article class=file tabindex=0>
         File.Txt
       </article>
 
