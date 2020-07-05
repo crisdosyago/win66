@@ -1,0 +1,25 @@
+{
+  "name": "win66",
+  "version": "1.0.0",
+  "description": "win66",
+  "main": "index.js",
+  "dependencies": {
+    "bulgogi": "^1.0.7"
+  },
+  "devDependencies": {
+    "snowpack": "^2.6.3"
+  },
+  "scripts": {
+    "test": "serve -p 8080",
+    "postinstall": "npx snowpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "/dev/null"
+  },
+  "keywords": [
+    "win66"
+  ],
+  "author": "@dosy",
+  "license": "MIT"
+}

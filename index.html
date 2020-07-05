@@ -24,7 +24,9 @@
 
     button, input {
       font-size: inherit;
+      color: inherit;
     }
+
     main.desktop {
       grid-area: "main-desktop";
       margin: 0.5rem;
@@ -50,10 +52,19 @@
       display: flex;
       justify-content: stretch;
       align-items: stretch;
+      font-size: smaller;
+      background: black;
+      color: white;
     }
 
-    nav.footer section {
+    nav.footer button {
+      background: transparent;
+      border: 0;
+    }
+
+    nav.footer section, nav.footer section div {
       display: flex;
+      position: relative;
     }
 
     nav.footer .main-popups {
@@ -70,6 +81,12 @@
       justify-content: flex-end;
     }
 
+    nav.footer .date-and-time {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
     nav.footer .popup {
 
     }
@@ -83,69 +100,43 @@
     }
 
     nav.footer input[name="search"].box {
-
+      padding-left: 2rem;
+      background: rgba(200,200,200,0.3);
+      border: thin solid white;
     }
+
+    nav.footer input[name="search"].box:focus {
+      background: white;
+      color: black;
+      outline: medium solid dodgerblue;
+    }
+
+    nav.footer input[name="search"].box:focus + .search-icon {
+      color: black;
+    }
+
 
     nav.footer button[name="win66"].main {
 
     }
+
+    section.search-box-popup span.search-icon {
+      font-size: xx-large;
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      left: 0;
+      top: 0;
+      z-index: 5;
+      width: 1rem;
+      height: 1rem;
+      padding: 0.5rem;
+      display: block;
+      color: white;
+      background: transparent;
+    }
+
   </style>
-  <body>
-    <main class=desktop>
-      <article class="file folder" tabindex=0>
-        Trash
-      </article>
-      <article class=file tabindex=0>
-        File.Txt
-      </article>
-
-    </main>
-    <nav class=footer>
-      <section class=main-popups>
-        <section class=win-button-popup>
-          <button type=button name=win66 class=main>
-            &#x229e; 
-          </button>
-          <article class="main popup">
-
-          </article>
-        </section>
-        <section class=search-box-popup>
-          <button>
-            <input type=text name=search class=box placeholder="Type here to search">
-          </button>
-          <aside class=popup>
-
-          </aside>
-        </section>
-      </section>
-      <section class=tasks-and-pins>
-
-      </section>
-      <section class=status-and-infos>
-        <div class=battery>
-
-        </div>
-        <div class=internet-connection>
-
-        </div>
-        <div class=sound>
-        
-        </div>
-        <div class=language>
-
-        </div>
-        <div class=date-and-time>
-          <time></time>
-          <time></time>
-        </div>
-        <div class=notifications>
-          <button>&#x2709;</button>
-        </div>
-      </section>
-    </nav>
-    <script type=module>
-
-    </script>
-  </body>
+  <script type=module src=app.js></script>
 </html>
