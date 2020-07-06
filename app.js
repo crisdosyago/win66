@@ -48,7 +48,26 @@ function App(state) {
             <input type=text name=search autocomplete=off class="box popup-trigger" placeholder="Type here to search">
             <span class=search-icon>&#x2315;</span>
             <aside class=popup>
-
+              <nav class=tabs>
+                <ul>
+                  <li><a href=#all>All</a>
+                  <li><a href=#apps>Apps</a>
+                  <li><a href=#documents>Documents</a>
+                  <li><a href=#web>Web</a>
+                  <li>
+                    <a href=#more class=menu>More</a>
+                    <ul class=menu-list> 
+                      <li><a href=#more-email>Email</a>
+                      <li><a href=#more-folders>Folders</a>
+                      <li><a href=#more-music>Music</a>
+                      <li><a href=#more-people>People</a>
+                      <li><a href=#more-photos>Photos</a>
+                      <li><a href=#more-settings>Settings</a>
+                      <li><a href=#more-videos>Videos</a>
+                    </ul>
+                  </li>
+                </ul>
+              </nav>
             </aside>
           </section>
         </section>
