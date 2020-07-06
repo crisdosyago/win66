@@ -10,6 +10,8 @@
     :root, body {
       min-height: 100%;
       height: 100%;
+      max-height: 100vh;
+      overflow: hidden;
     }
 
     body {
@@ -33,6 +35,7 @@
       display: flex;
       flex-direction: column;
       flex-flow: column wrap;
+      z-index: -1;
     }
 
     main.desktop > article.file {
@@ -55,6 +58,7 @@
       font-size: smaller;
       background: black;
       color: white;
+      max-height: 3rem;
     }
 
     nav.footer button {
@@ -64,7 +68,6 @@
 
     nav.footer section, nav.footer section div {
       display: flex;
-      position: relative;
     }
 
     nav.footer .main-popups {
@@ -88,7 +91,14 @@
     }
 
     nav.footer .popup {
-
+      left: 0;
+      position: absolute;
+      top: 0;
+      height: 61.8vh;
+      width: 61.8vw;
+      background: black;
+      transition: tranform 1s ease;
+      z-index: -1;
     }
 
     nav.footer aside.popup {
@@ -96,7 +106,6 @@
     }
 
     nav.footer article.main.popup {
-
     }
 
     nav.footer input[name="search"].box {
@@ -115,9 +124,17 @@
       color: black;
     }
 
+    .popup-trigger:focus ~ .popup {
+      transform: translate(0,-100%);
+    }
+
 
     nav.footer button[name="win66"].main {
 
+    }
+
+    section.search-box-popup, section.win-button-popup {
+      position: relative;
     }
 
     section.search-box-popup span.search-icon {
@@ -136,7 +153,6 @@
       color: white;
       background: transparent;
     }
-
   </style>
   <script type=module src=app.js></script>
 </html>

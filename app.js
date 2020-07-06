@@ -8,7 +8,7 @@ start();
 
 function start() {
   updateTime();
-  setInterval(updateTime, 7500);
+  //setInterval(updateTime, 7500);
 }
 
 function updateTime() {
@@ -37,7 +37,7 @@ function App(state) {
       <nav class=footer>
         <section class=main-popups>
           <section class=win-button-popup>
-            <button type=button name=win66 class=main>
+            <button type=button name=win66 class="win-button popup-trigger">
               &#x229e; 
             </button>
             <article class="main popup">
@@ -45,7 +45,7 @@ function App(state) {
             </article>
           </section>
           <section class=search-box-popup>
-            <input type=text name=search autocomplete=off class=box placeholder="Type here to search">
+            <input type=text name=search autocomplete=off class="box popup-trigger" placeholder="Type here to search">
             <span class=search-icon>&#x2315;</span>
             <aside class=popup>
 
