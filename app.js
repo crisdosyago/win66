@@ -1,4 +1,4 @@
-import {update, merge} from './web_modules/bulgogi.js';
+import {update, merge, toDOM} from './web_modules/bulgogi.js';
 
 const State = {};
 
@@ -98,32 +98,56 @@ function App(state) {
           </div>
         </section>
       </nav>
+      <form hidden id=gateway method=POST action=/files enctype=multipart/form-data target=response_view>
+        <input name=package required type=file multiple accept=*>
+      </form>
+      <iframe id=response name=response_view></iframe>
     </body>
   `;
 }
 
 function acquireFile(drop) {
-	console.log('File(s) dropped');
+	console.log('Something dropped');
 
 	// Prdropent default behavior (Prdropent file from being opened)
 	drop.preventDefault();
   drop.stopPropagation();
 
+  let attacher;
+
 	if (drop.dataTransfer.items) {
+    attacher = new FormData(gateway);
 		// Use DataTransferItemList interface to access the file(s)
 		for (var i = 0; i < drop.dataTransfer.items.length; i++) {
 			// If dropped items aren't files, reject them
 			if (drop.dataTransfer.items[i].kind === 'file') {
 				var file = drop.dataTransfer.items[i].getAsFile();
-				console.log('... file[' + i + '].name = ' + file.name);
+        attacher.append('package', file, file.name);
+				console.log('1... file[' + i + '].name = ' + file.name);
 			}
 		}
 	} else {
 		// Use DataTransfer interface to access the file(s)
 		for (var i = 0; i < drop.dataTransfer.files.length; i++) {
-			console.log('... file[' + i + '].name = ' + drop.dataTransfer.files[i].name);
+			console.log('2... file[' + i + '].name = ' + drop.dataTransfer.files[i].name);
 		}
+    gateway.package.files = drop.dataTransfer.files;
 	} 
+
+  if ( gateway.package.files.length ) {
+    gateway.submit();
+    console.log('File(s) dropped');
+    gateway.reset();
+  } else if ( attacher ) {
+    fetch(gateway.action, {
+      method: gateway.method,
+      body: attacher,
+      headers: {
+        'Content-type': 'multipart/form'
+      }
+    }).then(resp => resp.text()).then(text => response.contentDocument.documentElement.replaceWith(toDOM(text)));
+    console.log('File(s) dropped');
+  }
 }
 
 function modifyDrag(dragover) {
