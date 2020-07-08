@@ -9,6 +9,8 @@ start();
 function start() {
   updateTime();
   //setInterval(updateTime, 7500);
+  self.acquireFile = acquireFile;
+  self.modifyDrag = modifyDrag;
 }
 
 function updateTime() {
@@ -25,7 +27,7 @@ function updateTime() {
 function App(state) {
   return `
     <body>
-      <main class=desktop>
+      <main class=desktop ondrop="acquireFile(event);" ondragover="modifyDrag(event);">
         <article class="file folder" tabindex=0>
           Trash
         </article>
@@ -98,4 +100,33 @@ function App(state) {
       </nav>
     </body>
   `;
+}
+
+function acquireFile(drop) {
+	console.log('File(s) dropped');
+
+	// Prdropent default behavior (Prdropent file from being opened)
+	drop.preventDefault();
+  drop.stopPropagation();
+
+	if (drop.dataTransfer.items) {
+		// Use DataTransferItemList interface to access the file(s)
+		for (var i = 0; i < drop.dataTransfer.items.length; i++) {
+			// If dropped items aren't files, reject them
+			if (drop.dataTransfer.items[i].kind === 'file') {
+				var file = drop.dataTransfer.items[i].getAsFile();
+				console.log('... file[' + i + '].name = ' + file.name);
+			}
+		}
+	} else {
+		// Use DataTransfer interface to access the file(s)
+		for (var i = 0; i < drop.dataTransfer.files.length; i++) {
+			console.log('... file[' + i + '].name = ' + drop.dataTransfer.files[i].name);
+		}
+	} 
+}
+
+function modifyDrag(dragover) {
+	dragover.preventDefault();
+  dragover.stopPropagation();
 }
