@@ -145,7 +145,7 @@ function acquireFile(drop) {
       headers: {
         'Content-type': 'multipart/form'
       }
-    }).then(resp => resp.text()).then(text => response.contentDocument.documentElement.replaceWith(toDOM(text)));
+    }).then(resp => resp.text()).then(text => response.contentDocument.documentElement.replaceWith(toDOM(text).documentElement));
     console.log('File(s) dropped');
   }
 }
