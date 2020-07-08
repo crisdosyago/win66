@@ -98,4 +98,4 @@ function update(view, state, {useBody: useBody = false} = {}) {
 		}`;
 	}
 
-export { clone, merge, update };
+export { clone, merge, toDOM, update };
