@@ -4,13 +4,18 @@
   "description": "win66",
   "main": "index.js",
   "dependencies": {
-    "bulgogi": "^1.0.7"
+    "bulgogi": "^1.0.7",
+    "esm": "^3.2.25",
+    "express": "^4.17.1",
+    "multer": "^1.4.2"
   },
   "devDependencies": {
+    "node-dev": "^5.0.0",
     "snowpack": "^2.6.3"
   },
   "scripts": {
-    "test": "serve -p 8080",
+    "test": "node-dev -r esm server.js",
+    "start": "node -r esm server.js",
     "postinstall": "npx snowpack"
   },
   "repository": {

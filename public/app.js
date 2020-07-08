@@ -98,7 +98,7 @@ function App(state) {
           </div>
         </section>
       </nav>
-      <form hidden id=gateway method=POST action=/files enctype=multipart/form-data target=response_view>
+      <form hidden id=gateway method=POST action=/files enctype="multipart/form-data" target=response_view>
         <input name=package required type=file multiple accept=*>
       </form>
       <iframe id=response name=response_view></iframe>
@@ -142,9 +142,6 @@ function acquireFile(drop) {
     fetch(gateway.action, {
       method: gateway.method,
       body: attacher,
-      headers: {
-        'Content-type': 'multipart/form'
-      }
     }).then(resp => resp.text()).then(text => response.contentDocument.documentElement.replaceWith(toDOM(text).documentElement));
     console.log('File(s) dropped');
   }
