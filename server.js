@@ -33,11 +33,48 @@
     res.end('Upload complete');
   });
 
+  app.get("/files/*", async (req, res) => {
+    res.type('json');
+    const dirPath = req.params[0];
+    let files, err;
+    try {
+      files = fs.readdirSync(path.resolve(uploadPath, ...dirPath.split('/')), {withFileTypes:true});
+      files = files.map(f => ({name:f.name, type: getType(f)}));
+      console.log({files, dirPath})
+    } catch(e) {
+      err = e;
+      console.warn("Files err", err); 
+    } finally {
+      res.end(JSON.stringify({files, err}));
+    }
+  });
+
   app.listen(8080, err => {
 
   });
 
 // helpers
+  function getType( dirent ) {
+    if ( dirent.isBlockDevice() ) {
+      return 'block_dev';
+    } else if ( dirent.isCharacterDevice() ) {
+      return 'char_dev';
+    } else if ( dirent.isDirectory() ) {
+      return 'dir';
+    } else if ( dirent.isFIFO() ) {
+      return 'fifo';
+    } else if ( dirent.isFile() ) {
+      return 'file';
+    } else if ( dirent.isSocket() ) {
+      return 'socket';
+    } else if ( dirent.isSymbolicLink() ) {
+      return 'link';
+    } else {
+      console.warn("Dirent has unkown type", dirent);
+      return 'unknown';
+    }
+  }
+
 	function nextFileName(ext = '') {
 		//console.log({nextFileName:{ext}});
 		if ( ! ext.startsWith('.') ) {
