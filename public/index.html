@@ -3,164 +3,194 @@
   <meta name=viewport content=initial-scale=1,width=device-width>
   <title>Win66</title>
   <style>
-    :root {
-      font: 16px/135% Arial, Helvetica Neue, system, sans-serif;
-    }
-
-    :root, body {
-      min-height: 100%;
-      height: 100%;
-      max-height: 100vh;
-      overflow: hidden;
-    }
-
-    body {
-      margin: 0;
-      display: grid;
-      grid-template-areas:
-        "main-desktop"
-        "nav-footer";
-      grid-template-columns: 1fr;
-      grid-template-rows: 1fr auto;
-    }
-
-    button, input {
-      font-size: inherit;
-      color: inherit;
-    }
-
-    main.desktop {
-      grid-area: "main-desktop";
-      margin: 0.5rem;
-      display: flex;
-      flex-direction: column;
-      flex-flow: column wrap;
-      z-index: 2;
-    }
-
-    main.desktop > article.file {
-      height: 111px;
-      width: 85px;
-      border: thin dotted grey;
-      margin: 0.5rem 0.25rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      align-items: center;
-      font-size: smaller;
-    }
-
-    nav.footer {
-      grid-area: "nav-footer";
-      display: flex;
-      justify-content: stretch;
-      align-items: stretch;
-      font-size: smaller;
-      background: black;
-      color: white;
-      max-height: 3rem;
-      z-index: 3;
-    }
-
-    nav.footer button {
-      background: transparent;
-      border: 0;
-    }
-
-    nav.footer section, nav.footer section div {
-      display: flex;
-    }
-
-    nav.footer .main-popups {
-      justify-self: flex-start;
-    }
-
-    nav.footer .tasks-and-pins {
-      flex-grow: 1;
-      justif-content: flex-start;
-    }
-
-    nav.footer .status-and-infos {
-      justify-self: flex-end;
-      justify-content: flex-end;
-    }
-
-    nav.footer .date-and-time {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    nav.footer .popup {
-      left: 0;
-      position: absolute;
-      top: 0;
-      height: 61.8vh;
-      width: 61.8vw;
-      background: black;
-      transition: tranform 1s ease;
-      z-index: -1;
-    }
-
-    nav.footer aside.popup {
-
-    }
-
-    nav.footer article.main.popup {
-    }
-
-    nav.footer input[name="search"].box {
-      padding-left: 2rem;
-      background: rgb(70,70,70);
-      border: thin solid white;
-    }
-
-    nav.footer input[name="search"].box:focus {
-      background: white;
-      color: black;
-      outline: medium solid dodgerblue;
-    }
-
-    nav.footer input[name="search"].box:focus + .search-icon {
-      color: black;
-    }
-
-    .popup-trigger:focus ~ .popup {
-      transform: translate(0,-100%);
-    }
-
-
-    nav.footer button[name="win66"].main {
-
-    }
-
-    section.search-box-popup, section.win-button-popup {
-      position: relative;
-    }
-
-    section.search-box-popup span.search-icon {
-      font-size: xx-large;
-      position: absolute;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      left: 0;
-      top: 0;
-      z-index: 5;
-      width: 1rem;
-      height: 1rem;
-      padding: 0.5rem;
-      display: block;
-      color: white;
-      background: transparent;
-    }
-
-    /* function related */
-      
-      iframe#response {
-        z-index:10;
-        background: silver;
+    /* fonts, colors, and variables */
+      :root {
+        font: 16px/135% Arial, Helvetica Neue, system, sans-serif;
+        --foot-height: 2.5rem;
       }
+
+    /* styles */
+      :root, body {
+        position: relative;
+        min-height: 100%;
+        height: 100vh;
+        max-height: 100%;
+        overflow: hidden;
+      }
+
+      body {
+        display: grid;
+        grid-template-areas:
+          "main-desktop"
+          "nav-footer";
+        grid-template-columns: 1fr;
+        grid-template-rows: calc(100vh - var(--foot-height)) var(--foot-height);
+        margin: 0;
+        overflow: hidden;
+      }
+
+      button, input {
+        font-size: inherit;
+        color: inherit;
+      }
+
+      main.desktop {
+        width: min-content;
+        display: flex;
+        grid-area: main-desktop;
+        max-height: 100%;
+        height: 100%;
+        flex-direction: column;
+        flex-wrap: wrap;
+        z-index: 2;
+        margin: 0.5rem;
+      }
+
+      article.file {
+        height: 111px;
+        width: 85px;
+        border: thin dotted grey;
+        box-sizing: border-box;
+        margin: 0.625rem 1.25rem;
+        padding: 0.25rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        font-size: smaller;
+        text-align: center;
+        overflow-wrap: anywhere;
+        outline: none;
+      }
+
+      article.file img {
+        transform: scale(3.0) translate(0, -50%);
+      }
+
+      article.file:hover {
+        background: rgba(220,220,255,0.35);
+      }
+
+      article.file:focus {
+        border: thin solid dodgerblue;
+        background: rgba(220,220,255,0.5);
+      }
+
+      article.file:focus:hover {
+        background: rgba(220,220,255,0.85);
+      }
+
+      nav.footer {
+        grid-area: nav-footer;
+        display: flex;
+        justify-content: stretch;
+        align-items: stretch;
+        font-size: smaller;
+        background: black;
+        color: white;
+        max-height: var(--foot-height);
+        z-index: 3;
+      }
+
+      nav.footer button {
+        background: transparent;
+        border: 0;
+      }
+
+      nav.footer section, nav.footer section div {
+        display: flex;
+      }
+
+      nav.footer .main-popups {
+        justify-self: flex-start;
+      }
+
+      nav.footer .tasks-and-pins {
+        flex-grow: 1;
+        justif-content: flex-start;
+      }
+
+      nav.footer .status-and-infos {
+        justify-self: flex-end;
+        justify-content: flex-end;
+      }
+
+      nav.footer .date-and-time {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      nav.footer .popup {
+        left: 0;
+        position: absolute;
+        top: 0;
+        height: 61.8vh;
+        width: 61.8vw;
+        background: black;
+        transition: tranform 1s ease;
+        z-index: -1;
+      }
+
+      nav.footer aside.popup {
+
+      }
+
+      nav.footer article.main.popup {
+      }
+
+      nav.footer input[name="search"].box {
+        padding-left: 2rem;
+        background: rgb(70,70,70);
+        border: thin solid white;
+      }
+
+      nav.footer input[name="search"].box:focus {
+        background: white;
+        color: black;
+        outline: medium solid dodgerblue;
+      }
+
+      nav.footer input[name="search"].box:focus + .search-icon {
+        color: black;
+      }
+
+      .popup-trigger:focus ~ .popup {
+        transform: translate(0,-100%);
+      }
+
+
+      nav.footer button[name="win66"].main {
+
+      }
+
+      section.search-box-popup, section.win-button-popup {
+        position: relative;
+      }
+
+      section.search-box-popup span.search-icon {
+        font-size: xx-large;
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        left: 0;
+        top: 0;
+        z-index: 5;
+        width: 1rem;
+        height: 1rem;
+        padding: 0.5rem;
+        display: block;
+        color: white;
+        background: transparent;
+      }
+
+      /* function related */
+        
+        iframe#response {
+          z-index:10;
+          background: silver;
+        }
   </style>
   <script type=module src=app.js></script>
 </html>

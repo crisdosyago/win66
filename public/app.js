@@ -1,27 +1,46 @@
 import {update, merge, toDOM} from './web_modules/bulgogi.js';
 
-const State = {};
+const State = {
+  files: {}
+};
 
-const render = newFlatState => (merge(State, newFlatState), update(App, newFlatState, {useBody:true}));
+// render functions
+  const render = newFlatState => (merge(State, newFlatState), update(App, State, {useBody:true}));
+
+  // call to render some files
+    // note:
+    // we need a different API for merging files because file paths may have '.' in them
+    // which are treated as property path separators by merge
+    // so we do our own merge
+  const renderFiles = fileState => {
+    Object.assign(State.files, fileState);
+    update(App, State, {useBody:true});
+  };
 
 start();
 
-function start() {
-  updateTime();
-  //setInterval(updateTime, 7500);
+async function start() {
+  saveTime();
   self.acquireFile = acquireFile;
   self.modifyDrag = modifyDrag;
+  await listFiles('');
+  //setInterval(updateTime, 7500);
 }
 
-function updateTime() {
+function saveTime() {
   const now = new Date;
   const datetime = now.toISOString();
   const date = now.toLocaleDateString();
-  const time = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  const time = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', /*second:'2-digit'*/});
 
-  render({
+  merge(State, {
     now: { datetime, date, time }
   });
+}
+
+function updateTime() {
+  saveTime();
+  render({});
 }
 
 function App(state) {
@@ -31,10 +50,7 @@ function App(state) {
         <article class="file folder" tabindex=0>
           Trash
         </article>
-        <article class=file tabindex=0>
-          File.Txt
-        </article>
-
+        ${state.files[''] && state.files[''].map(FileView).join('\n')}
       </main>
       <nav class=footer>
         <section class=main-popups>
@@ -106,48 +122,72 @@ function App(state) {
   `;
 }
 
-function acquireFile(drop) {
-	console.log('Something dropped');
+function FileView({name, type}) {
+  return `
+    <article class=file tabindex=0>
+      ${name.endsWith('jpg') ? `<img src=about:blank>` : ``}
+      ${name}
+    </article>
+  `
+}
 
-	// Prdropent default behavior (Prdropent file from being opened)
-	drop.preventDefault();
-  drop.stopPropagation();
+// file upload
+  function acquireFile(drop) {
+    console.log('Something dropped');
 
-  let attacher;
+    // Prdropent default behavior (Prdropent file from being opened)
+    drop.preventDefault();
+    drop.stopPropagation();
 
-	if (drop.dataTransfer.items) {
-    attacher = new FormData(gateway);
-		// Use DataTransferItemList interface to access the file(s)
-		for (var i = 0; i < drop.dataTransfer.items.length; i++) {
-			// If dropped items aren't files, reject them
-			if (drop.dataTransfer.items[i].kind === 'file') {
-				var file = drop.dataTransfer.items[i].getAsFile();
-        attacher.append('package', file, file.name);
-				console.log('1... file[' + i + '].name = ' + file.name);
-			}
-		}
-	} else {
-		// Use DataTransfer interface to access the file(s)
-		for (var i = 0; i < drop.dataTransfer.files.length; i++) {
-			console.log('2... file[' + i + '].name = ' + drop.dataTransfer.files[i].name);
-		}
-    gateway.package.files = drop.dataTransfer.files;
-	} 
+    let attacher;
 
-  if ( gateway.package.files.length ) {
-    gateway.submit();
-    console.log('File(s) dropped');
-    gateway.reset();
-  } else if ( attacher ) {
-    fetch(gateway.action, {
-      method: gateway.method,
-      body: attacher,
-    }).then(resp => resp.text()).then(text => response.contentDocument.documentElement.replaceWith(toDOM(text).documentElement));
-    console.log('File(s) dropped');
+    if (drop.dataTransfer.items) {
+      attacher = new FormData(gateway);
+      // Use DataTransferItemList interface to access the file(s)
+      for (var i = 0; i < drop.dataTransfer.items.length; i++) {
+        // If dropped items aren't files, reject them
+        if (drop.dataTransfer.items[i].kind === 'file') {
+          var file = drop.dataTransfer.items[i].getAsFile();
+          attacher.append('package', file, file.name);
+          console.log('1... file[' + i + '].name = ' + file.name);
+        }
+      }
+    } else {
+      // Use DataTransfer interface to access the file(s)
+      for (var i = 0; i < drop.dataTransfer.files.length; i++) {
+        console.log('2... file[' + i + '].name = ' + drop.dataTransfer.files[i].name);
+      }
+      gateway.package.files = drop.dataTransfer.files;
+    } 
+
+    if ( gateway.package.files.length ) {
+      gateway.submit();
+      console.log('File(s) dropped');
+      gateway.reset();
+    } else if ( attacher ) {
+      fetch(gateway.action, {
+        method: gateway.method,
+        body: attacher,
+      }).then(resp => resp.text()).then(text => response.contentDocument.documentElement.replaceWith(toDOM(text).documentElement));
+      console.log('File(s) dropped');
+    }
   }
-}
 
-function modifyDrag(dragover) {
-	dragover.preventDefault();
-  dragover.stopPropagation();
-}
+  function modifyDrag(dragover) {
+    dragover.preventDefault();
+    dragover.stopPropagation();
+  }
+
+// file thumbnail show
+  async function listFiles(path) {
+    const {files,err} = await fetch(`/files/${path}`).then(r => r.json());
+    if ( err ) {
+      console.warn(err);
+      throw new Error(JSON.stringify({message:'An error occurred', error:err}));
+    } else {
+      const stateChange = {
+        [path]: files
+      };
+      renderFiles(stateChange);
+    }
+  }
