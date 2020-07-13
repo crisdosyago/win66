@@ -168,7 +168,8 @@ function FileView({name, type}) {
       fetch(gateway.action, {
         method: gateway.method,
         body: attacher,
-      }).then(resp => resp.text()).then(text => response.contentDocument.documentElement.replaceWith(toDOM(text).documentElement));
+      }).then(resp => resp.text()).then(text => response.contentDocument.documentElement.replaceWith(toDOM(text).documentElement))
+        .then(() => listFiles(''));
       console.log('File(s) dropped');
     }
   }
