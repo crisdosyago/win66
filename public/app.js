@@ -115,7 +115,7 @@ function App(state) {
         </section>
       </nav>
       <form hidden id=gateway method=POST action=/files enctype="multipart/form-data" target=response_view>
-        <input name=package required type=file multiple accept=*>
+        <input name=package required type=file webkitdirectory multiple accept=*>
       </form>
       <iframe id=response name=response_view></iframe>
     </body>
@@ -123,12 +123,21 @@ function App(state) {
 }
 
 function FileView({name, type}) {
-  return `
-    <article class=file tabindex=0>
-      ${name.endsWith('jpg') ? `<img src=about:blank>` : ``}
-      ${name}
-    </article>
-  `
+  if ( type == 'file' ) {
+    return `
+      <article class=file tabindex=0>
+        ${name.endsWith('jpg') ? `<img src=about:blank>` : ``}
+        ${name}
+      </article>
+    `
+  } else if ( type == 'dir' ) {
+    return `
+      <article class=file tabindex=0>
+        &#x1f4c1;
+        ${name}
+      </article>
+    `
+  }
 }
 
 // file upload
@@ -144,18 +153,21 @@ function FileView({name, type}) {
     if (drop.dataTransfer.items) {
       attacher = new FormData(gateway);
       // Use DataTransferItemList interface to access the file(s)
-      for (var i = 0; i < drop.dataTransfer.items.length; i++) {
-        // If dropped items aren't files, reject them
-        if (drop.dataTransfer.items[i].kind === 'file') {
-          var file = drop.dataTransfer.items[i].getAsFile();
-          attacher.append('package', file, file.name);
-          console.log('1... file[' + i + '].name = ' + file.name);
+      for (const item of drop.dataTransfer.items) {
+        if (item.kind === 'file') {
+          const file = item.webkitGetAsEntry();
+          const {name,webkitRelativePath} = file;
+          console.log({name,webkitRelativePath,file,item});
+          attacher.append('package', file, webkitRelativePath || name);
+        } else {
+          console.log({item});
         }
       }
     } else {
       // Use DataTransfer interface to access the file(s)
-      for (var i = 0; i < drop.dataTransfer.files.length; i++) {
-        console.log('2... file[' + i + '].name = ' + drop.dataTransfer.files[i].name);
+      for (const file of drop.dataTransfer.files) {
+        const {name,webkitRelativePath} = file;
+        console.log({name,webkitRelativePath});
       }
       gateway.package.files = drop.dataTransfer.files;
     } 
