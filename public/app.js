@@ -141,7 +141,7 @@ function FileView({name, type}) {
 }
 
 // file upload
-  function acquireFile(drop) {
+  async function acquireFile(drop) {
     console.log('Something dropped');
 
     // Prdropent default behavior (Prdropent file from being opened)
@@ -150,17 +150,20 @@ function FileView({name, type}) {
 
     let attacher;
 
+    console.log(drop);
     if (drop.dataTransfer.items) {
       attacher = new FormData(gateway);
       // Use DataTransferItemList interface to access the file(s)
       for (const item of drop.dataTransfer.items) {
-        if (item.kind === 'file') {
-          const file = item.webkitGetAsEntry();
+        const entry = item.webkitGetAsEntry();
+        if ( entry.isFile ) {
+          const file = item.getAsFile();
           const {name,webkitRelativePath} = file;
           console.log({name,webkitRelativePath,file,item});
           attacher.append('package', file, webkitRelativePath || name);
-        } else {
-          console.log({item});
+        } else if ( entry.isDirectory ) {
+          await recursivelyAppend(attacher, 'package', entry); 
+          console.log([...attacher.values()]); 
         }
       }
     } else {
@@ -184,6 +187,28 @@ function FileView({name, type}) {
         .then(() => listFiles(''));
       console.log('File(s) dropped');
     }
+  }
+
+  async function recursivelyAppend(attacher, prop, directoryEntry) {
+    let resolve;
+    const p = new Promise(res => resolve = res);
+    directoryEntry.createReader().readEntries(async results => {
+      for( const result of results ) {
+        const path = result.fullPath;
+        if ( result.isFile ) {
+          await new Promise(res => result.file(file => {
+            console.log({file}, path);
+            attacher.append(prop, file, path);
+            res(); 
+          }));
+        } else if ( result.isDirectory ) {
+          console.log({result});
+          await recursivelyAppend(attacher, prop, result);
+        }
+      }
+      resolve();
+    });
+    return p;
   }
 
   function modifyDrag(dragover) {

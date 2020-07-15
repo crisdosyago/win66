@@ -6,31 +6,65 @@
 
   import express from 'express';
   import multer from 'multer';
+  import formidable from 'formidable';
 
 // constants
   const APP_ROOT = path.dirname(fileURLToPath(import.meta.url));
 
 // multer up load related
-  const uploadPath = path.resolve(os.homedir(), 'win66-uploads');
+  const uploadDir = path.resolve(os.homedir(), 'win66-uploads');
 
-  if ( ! fs.existsSync(uploadPath) ) {
-    fs.mkdirSync(uploadPath, {recursive:true});
+  if ( ! fs.existsSync(uploadDir) ) {
+    fs.mkdirSync(uploadDir, {recursive:true});
   }
 
   const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, uploadPath),
-    filename: (req, file, cb) => cb(null, nextFileName(path.extname(file.originalname)))
+    destination: (req, file, cb) => {
+      cb(null, path.resolve(uploadDir, path.dirname(file.originalname)));
+    },
+    filename: (req, file, cb) => cb(null, nextFilename(file.originalname))
   });
 
-  const upload = multer({storage});
+  const upload = multer({
+    storage,
+    onError(err, next) {
+      console.warn("File upload", err);
+      next(err);
+    }
+  });
 
 // express http app related
   const app = express();
 	
 	app.use(express.static(path.resolve(APP_ROOT, 'public')));
 
+  /*
   app.post("/files", upload.array("package", 10), async (req, res) => {
+    console.log(req.files, req);
     res.end('Upload complete');
+  });
+  */
+
+  app.post("/files", async (req, res) => {
+    const form = formidable({multiples:true});
+    await new Promise(then => {
+      form.parse(req, (err, fields, files) => {
+        if ( err ) {
+          return next(err);
+        } 
+        for( const file of files.package ) {
+          if ( ! file.name ) continue;
+          const fileName = path.basename(file.name);
+          const filePath = path.dirname(file.name).split('/');
+          if ( ! fs.existsSync(path.resolve(uploadDir, ...filePath)) ) {
+            fs.mkdirSync(path.resolve(uploadDir,...filePath), {recursive:true});
+          }
+          fs.renameSync(file.path, path.resolve(uploadDir, ...filePath, fileName))  
+          console.log(`Installed ${path.resolve(uploadDir, ...filePath, fileName)}`);
+        }
+        then(res.end("Upload complete"));
+      });
+    });
   });
 
   app.get("/files/*", async (req, res) => {
@@ -38,7 +72,7 @@
     const dirPath = req.params[0];
     let files, err;
     try {
-      files = fs.readdirSync(path.resolve(uploadPath, ...dirPath.split('/')), {withFileTypes:true});
+      files = fs.readdirSync(path.resolve(uploadDir, ...dirPath.split('/')), {withFileTypes:true});
       files = files.map(f => ({name:f.name, type: getType(f)}));
       console.log({files, dirPath})
     } catch(e) {
@@ -75,12 +109,15 @@
     }
   }
 
-	function nextFileName(ext = '') {
-		//console.log({nextFileName:{ext}});
-		if ( ! ext.startsWith('.') ) {
-			ext = '.' + ext;
-		}
-		const name = `file${(Math.random()*1000000).toString(36)}${ext}`;
-		//console.log({nextFileName:{name}});
-		return name;
+	function nextFilename(name) {
+    if ( ! fs.existsSync(path.resolve(uploadDir, name))) {
+      return path.basename(name);
+    } else { 
+      name = path.basename(name);
+    }
+
+    const ext = path.extname(name);
+    const strippedName = name.slice(0,-ext.length);
+    const newName = `${name}-${Date.now()}${ext}`;
+    return newName;
 	}
