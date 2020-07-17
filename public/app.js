@@ -137,11 +137,36 @@ function App(state) {
 
 function FileView({name, type, id}, state) {
   if ( type == 'file' ) {
+    const type = contentType(name);
+    let viewer;
+    switch(type) {
+      case "image": 
+        viewer = `<img src="/serve/${fullPath}">`
+        break;
+      case "text":
+        viewer = `
+          <textarea></textarea>
+          <script>
+            load();
+            const textViewer = document.currentScript.previousElementSibling;
+            async function load() {
+              const text = await fetch("/serve/${fullPath}").then(r => r.text());
+              textViewer.innerText = text;
+              document.currentScript.remove();
+            }
+          </script>
+        `;
+        break;
+    }
     return `
       <article class=file tabindex=0 ondblclick="toggleOpen(event, '${id}');">
         ${name.endsWith('jpg') ? `<img src=about:blank>` : ``}
         ${name}
-        ${state.viewState.file[id].open ? 'open' : ''}
+        <article class=file-open>
+          ${
+
+          }
+        </article>
       </article>
     `
   } else if ( type == 'dir' ) {
@@ -244,6 +269,7 @@ function FileView({name, type, id}, state) {
         file.id = btoa(path + ':' + filePath);
         //flatten state
         newState[`viewState.file.${file.id}`] = {
+          fullPath: path + filePath,
           open: false
         };
       }
@@ -255,5 +281,49 @@ function FileView({name, type, id}, state) {
         [path]: files
       };
       renderFiles(stateChange);
+    }
+  }
+
+// helpers
+  function contentType(name) {
+    let ext = name.slice(name.lastIndexOf('.')).toLocaleLowerCase();
+    if ( ext.startsWith('.') ) {
+      ext = ext.slice(1);
+      switch(ext) {
+        case "jpg": 
+        case "jpeg": 
+        case "png": 
+        case "bmp": 
+        case "svg": 
+        case "tiff": 
+        case "ico":
+        case "apng":
+        case "gif":
+          return "image";
+          break;
+        case "txt":
+        case "md":
+        case "text":
+        case "me":
+        case "html":
+        case "htm":
+        case "json":
+        case "xml":
+        case "js":
+        case "c";
+        case "cpp":
+        case "go":
+        case "rb":
+        case "py":
+        case "pl":
+        case "asm":
+        case "java":
+        case "cs":
+        case "yaml":
+          return "text";
+          break;
+      }
+    } else {
+      return 'unkown';
     }
   }
