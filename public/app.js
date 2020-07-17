@@ -1,7 +1,10 @@
 import {update, merge, toDOM} from './web_modules/bulgogi.js';
 
 const State = {
-  files: {}
+  files: {},
+  viewState: {
+    file: {}
+  }
 };
 
 // render functions
@@ -23,6 +26,7 @@ async function start() {
   saveTime();
   self.acquireFile = acquireFile;
   self.modifyDrag = modifyDrag;
+  self.toggleOpen = toggleOpen;
   await listFiles('');
   //setInterval(updateTime, 7500);
 }
@@ -38,6 +42,15 @@ function saveTime() {
   });
 }
 
+function toggleOpen(userInteraction, id) {
+  if ( State.viewState.file[id].open ) {
+    State.viewState.file[id].open  = false;
+  } else {
+    State.viewState.file[id].open  = true;
+  }
+  update(App, State, {useBody:true});
+}
+
 function updateTime() {
   saveTime();
   render({});
@@ -50,7 +63,7 @@ function App(state) {
         <article class="file folder" tabindex=0>
           Trash
         </article>
-        ${state.files[''] && state.files[''].map(FileView).join('\n')}
+        ${state.files[''] && state.files[''].map(f => FileView(f, state)).join('\n')}
       </main>
       <nav class=footer>
         <section class=main-popups>
@@ -122,19 +135,21 @@ function App(state) {
   `;
 }
 
-function FileView({name, type}) {
+function FileView({name, type, id}, state) {
   if ( type == 'file' ) {
     return `
-      <article class=file tabindex=0>
+      <article class=file tabindex=0 ondblclick="toggleOpen(event, '${id}');">
         ${name.endsWith('jpg') ? `<img src=about:blank>` : ``}
         ${name}
+        ${state.viewState.file[id].open ? 'open' : ''}
       </article>
     `
   } else if ( type == 'dir' ) {
     return `
-      <article class=file tabindex=0>
+      <article class=file tabindex=0 ondblclick="toggleOpen(event, '${id}');">
         &#x1f4c1;
         ${name}
+        ${state.viewState.file[id].open ? 'open' : ''}
       </article>
     `
   }
@@ -223,6 +238,19 @@ function FileView({name, type}) {
       console.warn(err);
       throw new Error(JSON.stringify({message:'An error occurred', error:err}));
     } else {
+      const newState = {};
+      for( const [filePath, file] of Object.entries(files) ) {
+        // remove '.' characters
+        file.id = btoa(path + ':' + filePath);
+        //flatten state
+        newState[`viewState.file.${file.id}`] = {
+          open: false
+        };
+      }
+      // merge the state change 
+        // instead of calling render since we call it below in renderFiles
+        // so there's only 1 render call for all these changes
+      merge(State, newState);
       const stateChange = {
         [path]: files
       };
