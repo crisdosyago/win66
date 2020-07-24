@@ -1,5 +1,7 @@
 import {update, merge, toDOM} from './web_modules/bulgogi.js';
 
+import {installDragMove} from './drag.js';
+
 const State = {
   files: {},
   viewState: {
