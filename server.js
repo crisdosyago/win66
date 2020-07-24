@@ -89,6 +89,19 @@
     }
   });
 
+  app.get("/filecontent/*", async (req, res) => {
+    let filePath = req.params[0]; 
+    if ( filePath.startsWith('/') ) {
+      filePath = filePath.slice(1);
+    }
+    const fullPath = path.resolve(uploadDir, filePath);
+    if ( filePath && fs.existsSync(fullPath) ) {
+      res.sendFile(fullPath);
+    } else {
+      res.sendStatus(404);
+    }
+  });
+
   app.listen(8080, err => {
 
   });

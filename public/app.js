@@ -43,12 +43,17 @@ function saveTime() {
 }
 
 function toggleOpen(userInteraction, id) {
+  userInteraction.stopPropagation();
   if ( State.viewState.file[id].open ) {
     State.viewState.file[id].open  = false;
   } else {
     State.viewState.file[id].open  = true;
   }
   update(App, State, {useBody:true});
+}
+
+function S(o) {
+  console.log(JSON.stringify(o,null,2));
 }
 
 function updateTime() {
@@ -64,6 +69,27 @@ async function App(state) {
           Trash
         </article>
         ${state.files[''] && (await Promise.all(state.files[''].map(f => FileView(f, state)))).join('\n')}
+        <div class=open-layer-overlay>${(await Promise.all(
+          [...Object.entries(state.viewState.file)].map(async ([id, {type, open, fullPath}]) => {
+            if ( ! open ) return '';
+            if ( type == 'file' ) {
+              return `<article class=file-open>${
+                await fetch(`/filecontent/${fullPath}`)
+                    .then(r => r.blob())
+                    .then(b => URL.createObjectURL(b))
+                    .then(url => `<img src="${url}" title="${name}">`)
+              }</article>`;
+            } else if ( type == 'dir' ) {
+              return `<aside class=open-dir>${
+                (await Promise.all(
+                  (await listFiles(fullPath, true))[fullPath].map(
+                    f => FileView(f, state)
+                  )
+                )).join('\n')
+              }</aside>`;
+            }
+          })
+        )).join('\n')}</div>
       </main>
       <nav class=footer>
         <section class=main-popups>
@@ -136,6 +162,7 @@ async function App(state) {
 }
 
 async function FileView({name, type, fullPath, id}, state) {
+  const fileState = state.viewState.file[id];
   if ( type == 'file' ) {
     const type = contentType(name);
     let viewer;
@@ -162,28 +189,14 @@ async function FileView({name, type, fullPath, id}, state) {
       <article class=file tabindex=0 ondblclick="toggleOpen(event, '${id}');">
         ${type == "image" ? `<img src=about:blank>` : ``}
         ${name}
-        <article class=file-open>
-        </article>
       </article>
-    `
+    `;
   } else if ( type == 'dir' ) {
     const {fullPath} = state.viewState.file[id];
-    console.log(fullPath);
     return `
       <article class=file tabindex=0 ondblclick="toggleOpen(event, '${id}');">
         &#x1f4c1;
         ${name}
-        ${state.viewState.file[id].open ? 
-          `<aside class=open-dir>${
-            (await Promise.all(
-              (await listFiles(fullPath, true))[fullPath].map(
-                f => FileView(f, state)
-              )
-            )).join('\n')
-          }</aside>`
-          :
-          ''
-        }
       </article>
     `
   }
@@ -191,7 +204,6 @@ async function FileView({name, type, fullPath, id}, state) {
 
 // file upload
   async function acquireFile(drop) {
-    console.log('Something dropped');
 
     // Prdropent default behavior (Prdropent file from being opened)
     drop.preventDefault();
@@ -199,7 +211,6 @@ async function FileView({name, type, fullPath, id}, state) {
 
     let attacher;
 
-    console.log(drop);
     if (drop.dataTransfer.items) {
       attacher = new FormData(gateway);
       // Use DataTransferItemList interface to access the file(s)
@@ -208,25 +219,21 @@ async function FileView({name, type, fullPath, id}, state) {
         if ( entry.isFile ) {
           const file = item.getAsFile();
           const {name,webkitRelativePath} = file;
-          console.log({name,webkitRelativePath,file,item});
           attacher.append('package', file, webkitRelativePath || name);
         } else if ( entry.isDirectory ) {
           await recursivelyAppend(attacher, 'package', entry); 
-          console.log([...attacher.values()]); 
         }
       }
     } else {
       // Use DataTransfer interface to access the file(s)
       for (const file of drop.dataTransfer.files) {
         const {name,webkitRelativePath} = file;
-        console.log({name,webkitRelativePath});
       }
       gateway.package.files = drop.dataTransfer.files;
     } 
 
     if ( gateway.package.files.length ) {
       gateway.submit();
-      console.log('File(s) dropped');
       gateway.reset();
     } else if ( attacher ) {
       fetch(gateway.action, {
@@ -234,7 +241,6 @@ async function FileView({name, type, fullPath, id}, state) {
         body: attacher,
       }).then(resp => resp.text()).then(text => response.contentDocument.documentElement.replaceWith(toDOM(text).documentElement))
         .then(() => listFiles(''));
-      console.log('File(s) dropped');
     }
   }
 
@@ -246,12 +252,10 @@ async function FileView({name, type, fullPath, id}, state) {
         const path = result.fullPath;
         if ( result.isFile ) {
           await new Promise(res => result.file(file => {
-            console.log({file}, path);
             attacher.append(prop, file, path);
             res(); 
           }));
         } else if ( result.isDirectory ) {
-          console.log({result});
           await recursivelyAppend(attacher, prop, result);
         }
       }
@@ -269,7 +273,6 @@ async function FileView({name, type, fullPath, id}, state) {
   async function listFiles(path, noRender = false) {
     const {files,err} = await fetch(`/files/${path}`).then(r => r.json());
     if ( err ) {
-      console.warn(err);
       throw new Error(JSON.stringify({message:'An error occurred', error:err}));
     } else {
       const newState = {};
@@ -277,10 +280,19 @@ async function FileView({name, type, fullPath, id}, state) {
         const {fullPath, name, type} = file;
         file.id = btoa(fullPath);
         //flatten state
-        newState[`viewState.file.${file.id}`] = {
-          fullPath,
-          open: false
-        };
+        if ( State.viewState.file[file.id] ) {
+          newState[`viewState.file.${file.id}`] = {
+            type,
+            fullPath,
+            open: State.viewState.file[file.id].open
+          };
+        } else {
+          newState[`viewState.file.${file.id}`] = {
+            type,
+            fullPath,
+            open: false
+          };
+        }
       }
       // merge the state change 
         // instead of calling render since we call it below in renderFiles
