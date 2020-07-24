@@ -4,7 +4,7 @@
   "description": "win66",
   "main": "index.js",
   "dependencies": {
-    "bulgogi": "^1.0.7",
+    "bulgogi": "^1.2.0",
     "esm": "^3.2.25",
     "express": "^4.17.1",
     "formidable": "^1.2.2",
@@ -12,12 +12,13 @@
   },
   "devDependencies": {
     "node-dev": "^5.0.0",
-    "snowpack": "^2.6.3"
+    "snowpack": "^2.6.4"
   },
   "scripts": {
     "test": "node-dev -r esm server.js",
     "start": "node -r esm server.js",
-    "postinstall": "npx snowpack --exclude *.js"
+    "postinstall": "npx snowpack --exclude *.js --dest public/web_modules",
+    "upgrade": "bash ./upgrade.sh"
   },
   "repository": {
     "type": "git",

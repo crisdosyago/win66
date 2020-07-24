@@ -56,14 +56,14 @@ function updateTime() {
   render({});
 }
 
-function App(state) {
+async function App(state) {
   return `
     <body>
       <main class=desktop ondrop="acquireFile(event);" ondragover="modifyDrag(event);">
         <article class="file folder" tabindex=0>
           Trash
         </article>
-        ${state.files[''] && state.files[''].map(f => FileView(f, state)).join('\n')}
+        ${state.files[''] && (await Promise.all(state.files[''].map(f => FileView(f, state)))).join('\n')}
       </main>
       <nav class=footer>
         <section class=main-popups>
@@ -135,7 +135,7 @@ function App(state) {
   `;
 }
 
-function FileView({name, type, id}, state) {
+async function FileView({name, type, id}, state) {
   if ( type == 'file' ) {
     const type = contentType(name);
     let viewer;
@@ -163,9 +163,7 @@ function FileView({name, type, id}, state) {
         ${name.endsWith('jpg') ? `<img src=about:blank>` : ``}
         ${name}
         <article class=file-open>
-          ${
-
-          }
+          ${await listFiles(path, true)[path].map(f => FileView(f, state).join('\n'))}
         </article>
       </article>
     `
@@ -257,7 +255,7 @@ function FileView({name, type, id}, state) {
   }
 
 // file thumbnail show
-  async function listFiles(path) {
+  async function listFiles(path, noRender = false) {
     const {files,err} = await fetch(`/files/${path}`).then(r => r.json());
     if ( err ) {
       console.warn(err);
@@ -280,6 +278,9 @@ function FileView({name, type, id}, state) {
       const stateChange = {
         [path]: files
       };
+      
+      if ( noRender ) return stateChange;
+
       renderFiles(stateChange);
     }
   }
@@ -310,7 +311,7 @@ function FileView({name, type, id}, state) {
         case "json":
         case "xml":
         case "js":
-        case "c";
+        case "c":
         case "cpp":
         case "go":
         case "rb":

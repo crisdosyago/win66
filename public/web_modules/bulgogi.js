@@ -6,10 +6,10 @@ function toDOM(markup) {
   return parser.parseFromString(markup, 'text/html');
 }
 
-function update(view, state, {useBody: useBody = false} = {}) {
+async function update(view, state, {useBody: useBody = false} = {}) {
   consistentFocus.next();
   
-  const doc = toDOM(view(state));
+  const doc = toDOM(await view(state));
 
   if ( useBody ) {
     document.body.replaceWith(doc.body);
