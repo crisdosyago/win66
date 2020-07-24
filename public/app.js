@@ -160,7 +160,7 @@ async function FileView({name, type, fullPath, id}, state) {
     }
     return `
       <article class=file tabindex=0 ondblclick="toggleOpen(event, '${id}');">
-        ${name.endsWith('jpg') ? `<img src=about:blank>` : ``}
+        ${type == "image" ? `<img src=about:blank>` : ``}
         ${name}
         <article class=file-open>
         </article>
@@ -174,11 +174,13 @@ async function FileView({name, type, fullPath, id}, state) {
         &#x1f4c1;
         ${name}
         ${state.viewState.file[id].open ? 
-          (await Promise.all(
-            (await listFiles(fullPath, true))[fullPath].map(
-              f => FileView(f, state)
-            )
-          )).join('\n')
+          `<aside class=open-dir>${
+            (await Promise.all(
+              (await listFiles(fullPath, true))[fullPath].map(
+                f => FileView(f, state)
+              )
+            )).join('\n')
+          }</aside>`
           :
           ''
         }
