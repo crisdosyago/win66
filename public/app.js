@@ -135,7 +135,7 @@ async function App(state) {
   `;
 }
 
-async function FileView({name, type, id}, state) {
+async function FileView({name, type, fullPath, id}, state) {
   if ( type == 'file' ) {
     const type = contentType(name);
     let viewer;
@@ -163,16 +163,25 @@ async function FileView({name, type, id}, state) {
         ${name.endsWith('jpg') ? `<img src=about:blank>` : ``}
         ${name}
         <article class=file-open>
-          ${await listFiles(path, true)[path].map(f => FileView(f, state).join('\n'))}
         </article>
       </article>
     `
   } else if ( type == 'dir' ) {
+    const {fullPath} = state.viewState.file[id];
+    console.log(fullPath);
     return `
       <article class=file tabindex=0 ondblclick="toggleOpen(event, '${id}');">
         &#x1f4c1;
         ${name}
-        ${state.viewState.file[id].open ? 'open' : ''}
+        ${state.viewState.file[id].open ? 
+          (await Promise.all(
+            (await listFiles(fullPath, true))[fullPath].map(
+              f => FileView(f, state)
+            )
+          )).join('\n')
+          :
+          ''
+        }
       </article>
     `
   }
@@ -262,12 +271,12 @@ async function FileView({name, type, id}, state) {
       throw new Error(JSON.stringify({message:'An error occurred', error:err}));
     } else {
       const newState = {};
-      for( const [filePath, file] of Object.entries(files) ) {
-        // remove '.' characters
-        file.id = btoa(path + ':' + filePath);
+      for( const file of files ) {
+        const {fullPath, name, type} = file;
+        file.id = btoa(fullPath);
         //flatten state
         newState[`viewState.file.${file.id}`] = {
-          fullPath: path + filePath,
+          fullPath,
           open: false
         };
       }

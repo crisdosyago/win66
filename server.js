@@ -73,7 +73,13 @@
     let files, err;
     try {
       files = fs.readdirSync(path.resolve(uploadDir, ...dirPath.split('/')), {withFileTypes:true});
-      files = files.map(f => ({name:f.name, type: getType(f)}));
+      files = files.map(f => {
+        return {
+          name: f.name,
+          type: getType(f),
+          fullPath: dirPath + '/' + f.name
+        };
+      });
       console.log({files, dirPath})
     } catch(e) {
       err = e;
