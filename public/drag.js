@@ -19,11 +19,14 @@
 
   function *createMover(el) {
     waiting: while(true) {
-      const {type, clientX, clientY} = yield;
+      const {type, clientX, clientY, target} = yield;
+
+      if ( target.matches('button') ) continue;
+
       const {left, top} = el.getBoundingClientRect();
       const attachX = clientX - left;
       const attachY = clientY - top;
-
+       
       if ( type == 'pointerdown' ) {
         dragging: while(true) {
           const {type,clientX,clientY} = yield; 
