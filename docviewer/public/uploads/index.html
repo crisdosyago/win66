@@ -66,6 +66,7 @@
       noCram = false;
       page.src = nextUrl;
     }, 300);
+    prev.blur();
   };
   next.onclick = () => {
     const nextUrl = imgUrl(++pageNumber);
@@ -74,6 +75,7 @@
       noCram = false;
       page.src = nextUrl;
     }, 300);
+    next.blur();
   }
 
   function checkFirstPage() {
