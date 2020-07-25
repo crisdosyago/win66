@@ -51,7 +51,7 @@
 
       if ( target.matches('button') ) continue;
 
-      const {left, top} = el.getBoundingClientRect();
+      const {left,top} = el.getBoundingClientRect();
       const attachX = clientX - left;
       const attachY = clientY - top;
 
@@ -72,6 +72,6 @@
   }
 
   function updateEl(el, pointer) {
-    el.style.left = pointer.clientX - pointer.attachX;
-    el.style.top = pointer.clientY - pointer.attachY;
+    el.style.left = `calc(${pointer.clientX - pointer.attachX}px - 1rem)`;
+    el.style.top = `calc(${pointer.clientY - pointer.attachY}px - 1rem)`;
   }

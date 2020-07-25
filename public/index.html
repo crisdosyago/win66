@@ -19,6 +19,10 @@
         overflow: hidden;
       }
 
+      * {
+        box-sizing: border-box;
+      }
+
       body {
         display: grid;
         grid-template-areas:
@@ -40,6 +44,7 @@
         max-height: 100%;
         height: 100%;
         z-index: 2;
+        margin: 0.5rem;
       }
 
       main.desktop, aside.open-dir, article.file-open {
@@ -48,14 +53,12 @@
         grid-area: main-desktop;
         flex-direction: column;
         flex-wrap: wrap;
-        margin: 0.5rem;
       }
 
       article.file {
         height: 111px;
         width: 85px;
         border: thin dotted grey;
-        box-sizing: border-box;
         margin: 0.625rem 1.25rem;
         padding: 0.25rem;
         display: flex;
@@ -107,7 +110,9 @@
         max-width: 100vw;
         max-height: 100vh;
         overflow: scroll;
-        border: medium groove;
+        border-style: groove;
+        border-width: 0.25rem;
+        margin: 0.5rem;
       }
 
       aside.open-dir {
