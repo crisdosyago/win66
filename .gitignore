@@ -1,4 +1,5 @@
 .*.swp
+sslcerts/*.pem
 node_modules
 docviewer/pdfs/file*
 docviewer/public/uploads/file*

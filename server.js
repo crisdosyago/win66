@@ -2,6 +2,8 @@
   import os from 'os';
   import path from 'path';
   import fs from 'fs';
+  import http from 'http';
+  import https from 'https';
   import {fileURLToPath} from 'url';
 
   import express from 'express';
@@ -33,7 +35,24 @@
     }
   });
 
+// tls related
+  const secure_options = {};
+  let GO_SECURE = false;
+  try {
+    const sec = {
+      cert: fs.readFileSync(`./sslcerts/fullchain.pem`),
+      key: fs.readFileSync(`./sslcerts/privkey.pem`),
+      ca: fs.readFileSync(`./sslcerts/chain.pem`),
+    };
+    Object.assign(secure_options, sec);
+    GO_SECURE = true;
+  } catch(e) {
+    console.warn(e, `No certs found so will use insecure no SSL.`); 
+  }
+  const protocol = GO_SECURE ? https : http;
+
 // express http app related
+  const PORT = (process.argv[2] && parseInt(process.argv[2])) || (GO_SECURE ? 443 : 80);
   const app = express();
 	
 	app.use(express.static(path.resolve(APP_ROOT, 'public')));
@@ -95,7 +114,9 @@
     }
   });
 
-  app.listen(8080, err => {
+  const server = protocol.createServer.apply(protocol, GO_SECURE ? [secure_options, app] : [app]);
+
+  server.listen(PORT, err => {
 
   });
 
