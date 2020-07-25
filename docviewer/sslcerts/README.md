@@ -1,4 +1,3 @@
-# SSL certs
+# SSL Certs
 
-You need fullchain.pem and privkey.pem in this directory.
-
+Put them here

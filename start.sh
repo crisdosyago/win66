@@ -1,13 +1,15 @@
 #!/bin/bash
 
-trap 'kill $BGPID; exit 0;' SIGINT
-trap 'kill $BGPID; exit 0;' SIGKILL
-trap 'kill $BGPID; exit 0;' INT
-trap 'kill $BGPID; exit 0;' KILL
+trap 'sudo kill $BGPID; exit 0;' SIGINT
+trap 'sudo kill $BGPID; exit 0;' SIGKILL
+trap 'sudo kill $BGPID; exit 0;' INT
+trap 'sudo kill $BGPID; exit 0;' KILL
 
 sudo node -r esm server.js &
 BGPID=$!
 
 cd docviewer
-./run.sh
+./run.sh 8090
+
+wait
 

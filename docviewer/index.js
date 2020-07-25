@@ -22,8 +22,9 @@ let secure = false;
 
 try {
   Object.assign(SSL_OPTS,{
-    key: fs.readFileSync(path.join(__dirname, 'sslcerts', 'privkey.pem')),
-    cert: fs.readFileSync(path.join(__dirname, 'sslcerts', 'fullchain.pem')),
+      cert: fs.readFileSync(`./sslcerts/fullchain.pem`),
+      key: fs.readFileSync(`./sslcerts/privkey.pem`),
+      ca: fs.readFileSync(`./sslcerts/chain.pem`),
   });
   secure = true;
 } catch(e) {
