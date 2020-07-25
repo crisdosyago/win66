@@ -86,6 +86,7 @@ async function App(state) {
           Trash
         </article>
         ${state.files[''] && (await Promise.all(state.files[''].map(f => FileView(f, state)))).join('\n')}
+        <iframe src=${location.protocol}//${location.hostname}:8090></iframe>
         <div class=open-layer-overlay>${(await Promise.all(
           [...Object.entries(state.viewState.file)].map(async ([id, {type, open, fullPath}]) => {
             if ( ! open ) return '';

@@ -43,7 +43,7 @@ const storage = multer.diskStorage({
   }
 });
 const DEBUG = true;
-const PORT = process.env.PORT || (secure ? (process.argv[2] || 8080) : 8080);
+const PORT = process.env.PORT || (secure ? (process.argv[2] || 8090) : 8090);
 const uploadPath = path.join(__dirname, 'public', 'uploads');
 const CONVERTER = path.join(__dirname, 'scripts', 'convert.sh');
 const VALID = /^\.[a-zA-Z][a-zA-Z0-9\-\_]{0,12}$/g;
@@ -118,7 +118,8 @@ app.post('/very-secure-manifest-convert', upload.single('pdf'), async (req, res)
   }
 
   // give the view url
-    return res.end(viewUrl);
+    res.type('html');
+    return res.end(`<a href=${viewUrl}>doc</a>`);
 });
 
 app.use((err, req, res, next) => {

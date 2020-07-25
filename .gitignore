@@ -1,6 +1,6 @@
 .*.swp
 node_modules
-docviewer/pdfs/*
+docviewer/pdfs/file*
 docviewer/public/uploads/file*
 
 # Logs
