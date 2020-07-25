@@ -2,9 +2,19 @@ import {update as Update, merge, toDOM} from './web_modules/bulgogi.js';
 
 import {installDragMove} from './drag.js';
 
+// used to tell the drag engine when we move at top-level
+// so it can decide if pointer has move outside drag target
+// and stop the drag state
+let notifyMove;
+
 const update = async (...args) => {
   await Update(...args);
-  installDragMove();
+  if ( ! notifyMove ) {
+    notifyMove = installDragMove();
+    self.addEventListener('pointermove', notifyMove);
+  } else {
+    installDragMove();
+  }
 };
 
 const State = {
