@@ -38,13 +38,6 @@
 	
 	app.use(express.static(path.resolve(APP_ROOT, 'public')));
 
-  /*
-  app.post("/files", upload.array("package", 10), async (req, res) => {
-    console.log(req.files, req);
-    res.end('Upload complete');
-  });
-  */
-
   app.post("/files", async (req, res) => {
     const form = formidable({multiples:true});
     await new Promise(then => {
@@ -60,7 +53,7 @@
             fs.mkdirSync(path.resolve(uploadDir,...filePath), {recursive:true});
           }
           fs.renameSync(file.path, path.resolve(uploadDir, ...filePath, fileName))  
-          console.log(`Installed ${path.resolve(uploadDir, ...filePath, fileName)}`);
+          //console.log(`Installed ${path.resolve(uploadDir, ...filePath, fileName)}`);
         }
         then(res.end("Upload complete"));
       });
@@ -80,7 +73,7 @@
           fullPath: dirPath + '/' + f.name
         };
       });
-      console.log({files, dirPath})
+      //console.log({files, dirPath})
     } catch(e) {
       err = e;
       console.warn("Files err", err); 

@@ -1,6 +1,11 @@
-import {update, merge, toDOM} from './web_modules/bulgogi.js';
+import {update as Update, merge, toDOM} from './web_modules/bulgogi.js';
 
 import {installDragMove} from './drag.js';
+
+const update = async (...args) => {
+  await Update(...args);
+  installDragMove();
+};
 
 const State = {
   files: {},
@@ -75,19 +80,24 @@ async function App(state) {
           [...Object.entries(state.viewState.file)].map(async ([id, {type, open, fullPath}]) => {
             if ( ! open ) return '';
             if ( type == 'file' ) {
-              return `<article class=file-open>${
+              return `<article class=file-open dragmove>
+                <button onclick="toggleOpen(event, '${id}');">X</button>
+                ${
                 await fetch(`/filecontent/${fullPath}`)
                     .then(r => r.blob())
                     .then(b => URL.createObjectURL(b))
-                    .then(url => `<img src="${url}" title="${name}">`)
+                    .then(url => `<img src="${url}" title="${name}" draggable=false>`)
+                    .catch(() => `No such file`)
               }</article>`;
             } else if ( type == 'dir' ) {
-              return `<aside class=open-dir>${
+              return `<aside class=open-dir dragmove>
+                <button onclick="toggleOpen(event, '${id}');">X</button>
+                ${
                 (await Promise.all(
                   (await listFiles(fullPath, true))[fullPath].map(
                     f => FileView(f, state)
                   )
-                )).join('\n')
+                ).catch(() => 'No such directory')).join('\n')
               }</aside>`;
             }
           })
@@ -189,7 +199,7 @@ async function FileView({name, type, fullPath, id}, state) {
     }
     return `
       <article class=file tabindex=0 ondblclick="toggleOpen(event, '${id}');">
-        ${type == "image" ? `<img src=about:blank>` : ``}
+        ${type == "image" ? `<img src="data:text/plain,a">` : ``}
         ${name}
       </article>
     `;
@@ -218,6 +228,7 @@ async function FileView({name, type, fullPath, id}, state) {
       // Use DataTransferItemList interface to access the file(s)
       for (const item of drop.dataTransfer.items) {
         const entry = item.webkitGetAsEntry();
+        if ( ! entry ) continue;
         if ( entry.isFile ) {
           const file = item.getAsFile();
           const {name,webkitRelativePath} = file;
