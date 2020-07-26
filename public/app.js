@@ -7,22 +7,23 @@ import {installDragMove} from './drag.js';
 // and stop the drag state
 let notifyMove;
 
-const update = async (...args) => {
-  await Update(...args);
-  if ( ! notifyMove ) {
-    notifyMove = installDragMove();
-    self.addEventListener('pointermove', notifyMove);
-  } else {
-    installDragMove();
-  }
-};
-
 const State = {
   files: {},
   viewState: {
     file: {}
   }
 };
+
+const update = async (...args) => {
+  await Update(...args);
+  if ( ! notifyMove ) {
+    notifyMove = installDragMove(State);
+    self.addEventListener('pointermove', notifyMove);
+  } else {
+    installDragMove(State);
+  }
+};
+
 
 // render functions
   const render = newFlatState => (merge(State, newFlatState), update(App, State, {useBody:true}));
@@ -86,22 +87,30 @@ async function App(state) {
           Trash
         </article>
         ${state.files[''] && (await Promise.all(state.files[''].map(f => FileView(f, state)))).join('\n')}
-        <iframe src=${location.protocol}//${location.hostname}:8090></iframe>
+        <!-- <iframe src=${location.protocol}//${location.hostname}:8090></iframe> -->
         <div class=open-layer-overlay>${(await Promise.all(
-          [...Object.entries(state.viewState.file)].map(async ([id, {type, open, fullPath}]) => {
+          [...Object.entries(state.viewState.file)].map(async ([id, {type, open, x, y, fullPath}]) => {
             if ( ! open ) return '';
             if ( type == 'file' ) {
-              return `<article class=file-open dragmove>
-                <button onclick="toggleOpen(event, '${id}');">X</button>
-                ${
-                await fetch(`/filecontent/${fullPath}`)
+              return `<article class=file-open 
+                  dragmove 
+                  data-id="${id}" 
+                  style="left: ${x}; top: ${y};"
+                >
+                  <button onclick="toggleOpen(event, '${id}');">X</button>
+                  ${
+                  await fetch(`/filecontent/${fullPath}`)
                     .then(r => r.blob())
                     .then(b => URL.createObjectURL(b))
                     .then(url => `<img src="${url}" title="${name}" draggable=false>`)
                     .catch(() => `No such file`)
               }</article>`;
             } else if ( type == 'dir' ) {
-              return `<aside class=open-dir dragmove>
+              return `<aside class=open-dir 
+                  dragmove 
+                  data-id="${id}"
+                  style="left: ${x}; top: ${y};"
+                >
                 <button onclick="toggleOpen(event, '${id}');">X</button>
                 ${
                 (await Promise.all(
@@ -305,11 +314,8 @@ async function FileView({name, type, fullPath, id}, state) {
         file.id = btoa(fullPath);
         //flatten state
         if ( State.viewState.file[file.id] ) {
-          newState[`viewState.file.${file.id}`] = {
-            type,
-            fullPath,
-            open: State.viewState.file[file.id].open
-          };
+          newState[`viewState.file.${file.id}.type`] = type;
+          newState[`viewState.file.${file.id}.fullPath`] = fullPath;
         } else {
           newState[`viewState.file.${file.id}`] = {
             type,

@@ -15,8 +15,8 @@
     "snowpack": "^2.6.4"
   },
   "scripts": {
-    "test": "node-dev -r esm server.js",
-    "start": "node -r esm server.js",
+    "test": "sudo ./test.sh",
+    "start": "sudo ./start.sh",
     "postinstall": "npx snowpack --exclude *.js --dest public/web_modules && cd docviewer && npm i",
     "upgrade": "bash ./upgrade.sh"
   },

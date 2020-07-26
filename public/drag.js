@@ -1,6 +1,6 @@
   let globalZIndex = 100;
 
-  export function installDragMove() {
+  export function installDragMove(state) {
     // we use pointer events
     // now supported everywhere
     // basic idea
@@ -10,7 +10,6 @@
     // things to note: attachment point should be consistent
     // anything with a draggable attribute
     const target = document.querySelectorAll('[dragmove]');
-    const state = {};
     for( const el of target ) {
       const dragMove = createMover(el, state);
       el.dragMove = dragMove;
@@ -60,7 +59,7 @@
         dragging: while(true) {
           const {type,clientX,clientY} = yield; 
           if ( type == 'pointermove' ) {
-            updateEl(el,{attachX,attachY,clientX,clientY});
+            updateEl(el,{attachX,attachY,clientX,clientY}, state);
           } else if ( type == 'pointerup' || type == 'break' ) {
             break dragging;
           } else if ( type == 'pointerdown' ) {
@@ -71,7 +70,12 @@
     }
   }
 
-  function updateEl(el, pointer) {
+  function updateEl(el, pointer, state) {
     el.style.left = `calc(${pointer.clientX - pointer.attachX}px - 1rem)`;
     el.style.top = `calc(${pointer.clientY - pointer.attachY}px - 1rem)`;
+
+    const id = el.dataset.id;
+    state.viewState.file[id].x = el.style.left;
+    state.viewState.file[id].y = el.style.top;
+
   }
