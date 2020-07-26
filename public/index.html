@@ -41,16 +41,16 @@
 
       main.desktop {
         position: relative;
+        grid-area: main-desktop;
         max-height: 100%;
         height: 100%;
         z-index: 2;
         margin: 0.5rem;
       }
 
-      main.desktop, aside.open-dir, article.file-open {
+      main.desktop {
         background: white;
         display: flex;
-        grid-area: main-desktop;
         flex-direction: column;
         flex-wrap: wrap;
       }
@@ -61,22 +61,57 @@
         border: thin dotted grey;
         margin: 0.625rem 1.25rem;
         padding: 0.25rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
-        align-items: center;
         font-size: smaller;
         text-align: center;
+        display: inline-block;
         overflow-wrap: anywhere;
         outline: none;
         overflow: hidden;
       }
 
+      article.file div.content {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+      }
+
+      article.file-open, article.file-open div.content {
+        width: fit-content;
+      }
       article.file-open {
         position: absolute;
         display: table;
         top: 2rem;
         left: 2rem;
+      }
+
+      aside.open-dir, article.file-open:not(:empty) {
+        background: white;
+        resize: both;
+        z-index: 100;
+        max-width: 100vw;
+        max-height: 100vh;
+        overflow: scroll;
+        border-style: groove;
+        border-width: 0.25rem;
+        margin: 0.5rem;
+      }
+
+      div.topbar {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: auto;
+      }
+
+      article.file-open div.content {
+
+      }
+
+      article.dir-open div.content {
+
       }
 
       article.file-open img {
@@ -85,7 +120,7 @@
         max-height: 95vh;
       }
 
-      article.file > img {
+      article.file div.content > img {
         transform: scale(3.0) translate(0, -50%);
       }
 
@@ -102,23 +137,13 @@
         background: rgba(220,220,255,0.85);
       }
       
-      aside.open-dir, article.file-open:not(:empty) {
-        resize: both;
-        z-index: 100;
-        width: 400px;
-        height: 300px;
-        max-width: 100vw;
-        max-height: 100vh;
-        overflow: scroll;
-        border-style: groove;
-        border-width: 0.25rem;
-        margin: 0.5rem;
-      }
-
       aside.open-dir {
         position: absolute;
         top: 1rem;
         left: 1rem;
+        width: 400px;
+        height: 300px;
+
       }
 
       nav.footer {

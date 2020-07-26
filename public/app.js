@@ -84,7 +84,9 @@ async function App(state) {
     <body>
       <main class=desktop ondrop="acquireFile(event);" ondragover="modifyDrag(event);">
         <article class="file folder" tabindex=0>
-          Trash
+          <div class=content>
+            Trash
+          </div>
         </article>
         ${state.files[''] && (await Promise.all(state.files[''].map(f => FileView(f, state)))).join('\n')}
         <!-- <iframe src=${location.protocol}//${location.hostname}:8090></iframe> -->
@@ -97,28 +99,38 @@ async function App(state) {
                   data-id="${id}" 
                   style="left: ${x}; top: ${y};"
                 >
-                  <button onclick="toggleOpen(event, '${id}');">X</button>
-                  ${
-                  await fetch(`/filecontent/${fullPath}`)
-                    .then(r => r.blob())
-                    .then(b => URL.createObjectURL(b))
-                    .then(url => `<img src="${url}" title="${name}" draggable=false>`)
-                    .catch(() => `No such file`)
-              }</article>`;
+                  <div class=topbar>
+                    <button onclick="toggleOpen(event, '${id}');">X</button>
+                  </div>
+                  <div class=content>
+                    ${
+                      await fetch(`/filecontent/${fullPath}`)
+                        .then(r => r.blob())
+                        .then(b => URL.createObjectURL(b))
+                        .then(url => `<img src="${url}" title="${name}" draggable=false>`)
+                        .catch(() => `No such file`)
+                    }
+                  </div>
+              </article>`;
             } else if ( type == 'dir' ) {
               return `<aside class=open-dir 
                   dragmove 
                   data-id="${id}"
                   style="left: ${x}; top: ${y};"
                 >
-                <button onclick="toggleOpen(event, '${id}');">X</button>
-                ${
-                (await Promise.all(
-                  (await listFiles(fullPath, true))[fullPath].map(
-                    f => FileView(f, state)
-                  )
-                ).catch(() => 'No such directory')).join('\n')
-              }</aside>`;
+                <div class=topbar>
+                  <button onclick="toggleOpen(event, '${id}');">X</button>
+                </div>
+                <div class=content>
+                  ${
+                    (await Promise.all(
+                      (await listFiles(fullPath, true))[fullPath].map(
+                        f => FileView(f, state)
+                      )
+                    ).catch(() => 'No such directory')).join('\n')
+                  }
+                </div>
+              </aside>`;
             }
           })
         )).join('\n')}</div>
@@ -219,16 +231,20 @@ async function FileView({name, type, fullPath, id}, state) {
     }
     return `
       <article class=file tabindex=0 ondblclick="toggleOpen(event, '${id}');">
-        ${type == "image" ? `<img src="data:text/plain,a">` : ``}
-        ${name}
+        <div class=content>
+          ${type == "image" ? `<img src="data:text/plain,a">` : ``}
+          ${name}
+        </div>
       </article>
     `;
   } else if ( type == 'dir' ) {
     const {fullPath} = state.viewState.file[id];
     return `
       <article class=file tabindex=0 ondblclick="toggleOpen(event, '${id}');">
-        &#x1f4c1;
-        ${name}
+        <div class=content>
+          &#x1f4c1;
+          ${name}
+        </div>
       </article>
     `
   }
