@@ -1,3 +1,5 @@
+  const SCROLLBAR_WIDTH = 16;
+  const SCROLLBAR_HEIGHT = 16;
   let globalZIndex = 100;
 
   export function installDragMove(state) {
@@ -50,12 +52,17 @@
 
       if ( target.matches('button') ) continue;
 
-      const {left,top} = el.getBoundingClientRect();
+      const {left,width, height, top} = el.getBoundingClientRect();
       const attachX = clientX - left;
       const attachY = clientY - top;
 
       if ( type == 'pointerdown' ) {
         el.style.zIndex = globalZIndex++;
+        if ( 
+          (width - attachX) < SCROLLBAR_WIDTH &&
+          (height - attachY) < SCROLLBAR_HEIGHT 
+        ) continue waiting;     //because someone is pointing at the resize-drag region
+
         dragging: while(true) {
           const {type,clientX,clientY} = yield; 
           if ( type == 'pointermove' ) {

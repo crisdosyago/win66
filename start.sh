@@ -11,7 +11,7 @@ sudo node -r esm server.js $port &
 BGPID=$!
 
 cd docviewer
-./run.sh 8090
+sudo -u $(logname) ./run.sh 8090
 
 wait
 
