@@ -4,6 +4,7 @@
       font: 16px/135% Arial, Helvetica Neue, system, sans-serif;
       --foot-height: 2.5rem;
       user-select: none;
+      --grey: gainsboro;
     }
 
   /* styles */
@@ -104,7 +105,7 @@
       position: sticky;
       top: 0;
       left: 0;
-      background: white;
+      background: var(--grey);
       margin: 0;
       padding: 0;
       width: 100%;
