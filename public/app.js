@@ -7,6 +7,7 @@ import {installDragMove} from './drag.js';
 // and stop the drag state
 let notifyMove;
 
+const MAX_NAME_DISPLAY = 16;
 const State = {
   files: {},
   viewState: {
@@ -228,6 +229,11 @@ async function FileView({name, type, fullPath, id}, state) {
           </script>
         `;
         break;
+    }
+    if ( name.length > MAX_NAME_DISPLAY ) {
+      name = name.split('');
+      name.splice(MAX_NAME_DISPLAY/2, name.length-MAX_NAME_DISPLAY, '&hellip;');
+      name = name.join('');
     }
     return `
       <article class=file tabindex=0 ondblclick="toggleOpen(event, '${id}');">

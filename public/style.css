@@ -73,6 +73,11 @@
       align-items: center;
     }
 
+    div.content {
+      font-size: 0.8rem;
+      line-height: 1rem;
+    }
+
     article.file-open div.content, article.file-open div.content {
       width: fit-content;
     }
